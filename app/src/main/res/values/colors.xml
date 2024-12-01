@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="dos">#FDFDFD</color>
+    <color name="numero_oscuro">#C1B4A7</color>
+    <color name="cuatro">#FDFDFD</color>
+    <color name="numero_blanco">@color/cuatro</color>
+    <color name="ocho">#F1B178</color>
+    <color name="borde">#B0B0B0</color>
+    <color name="fondo_grid">#bbada0</color>
+    <color name="celda">#eee4da</color>
+</resources>

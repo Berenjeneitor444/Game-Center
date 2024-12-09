@@ -11,6 +11,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.GridLayout;
+import android.widget.Space;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -29,29 +30,47 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
 
     private GestureDetector gestureDetector;
 
-    public void jugada(int[] cambioPosicion) {
+    private void inicializarGrid(){
+        grid = findViewById(R.id.grid_sobrepuesto);
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        final int proporcion = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 74.375f, metrics));
+        final int margen = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10.5f, metrics));
+        // Agrega una fila de Space views en la fila 0
+        for (int i = 0; i < grid.getColumnCount(); i++) {
+            Space space = new Space(getApplicationContext());
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+            params.rowSpec = GridLayout.spec(0);
+            params.columnSpec = GridLayout.spec(i);
+            params.height = proporcion;
+            params.width = proporcion;
+            params.setMargins(0,0,margen,margen);
+            grid.addView(space, params);
+        }
+
+        // Agrega una columna de Space views en la columna 0
+        for (int i = 1; i < grid.getRowCount(); i++) {
+            Space space = new Space(getApplicationContext());
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+            params.rowSpec = GridLayout.spec(i);
+            params.columnSpec = GridLayout.spec(0);
+            params.width = proporcion;
+            params.height = proporcion;
+            params.setMargins(0,0,margen,margen);
+            grid.addView(space, params);
+        }
+    }
+    // CONTINUAR CON LOGICA MAÑANA
+    public void moverBloque(TextView bloque, final int DIRECCION){
         int fila = coordenadasBloque[0];
         int columna = coordenadasBloque[1];
-        int filaNueva = fila + cambioPosicion[0];
-        int columnaNueva = columna + cambioPosicion[1];
-        // vuelve si esta out of bounds
-        if (filaNueva < 0 || filaNueva >= 4 || columnaNueva < 0 || columnaNueva >= 4) {
-            return;
-        }
-        // obtener el bloque
-        TextView bloque = (TextView) grid.getChildAt(0);
+        int filaNueva = fila + DIRECCION;
+        int columnaNueva = columna + DIRECCION;
         // crear sus nuevos parametros de posicionamiento nuevo
         GridLayout.LayoutParams params = (GridLayout.LayoutParams)bloque.getLayoutParams();
         params.rowSpec = GridLayout.spec(filaNueva);
         params.columnSpec = GridLayout.spec(columnaNueva);
-        Log.d("fila", String.valueOf(filaNueva));
-        Log.d("columna", String.valueOf(columnaNueva));
-        Log.d("bolque", bloque.getText().toString());
         // los seteo
         bloque.setLayoutParams(params);
-        // refresco la vista del grid
-        grid.invalidate();
-        grid.requestLayout();
         // actualizo la matriz
         matrizGrid[filaNueva][columnaNueva] = matrizGrid[fila][columna];
         matrizGrid[fila][columna] = 0;
@@ -59,6 +78,24 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
         // actualizo las coordenadas
         coordenadasBloque[0] = filaNueva;
         coordenadasBloque[1] = columnaNueva;
+    }
+    public void jugada(final int DIRECCION) {
+        boolean seHaMovidoAlgo = false;
+
+
+        // vuelve si esta out of bounds
+//        if (filaNueva < 0 || filaNueva >= 4 || columnaNueva < 0 || columnaNueva >= 4) {
+//            return;
+//        }
+        // mover los bloques
+        for (int i = 7; i < grid.getChildCount(); i++){
+            moverBloque((TextView) grid.getChildAt(i), DIRECCION);
+        }
+
+
+        // refresco la vista del grid
+        grid.invalidate();
+        grid.requestLayout();
 
     }
 
@@ -76,7 +113,7 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
 
             DisplayMetrics metrics = getResources().getDisplayMetrics();
             // darle margen
-            int margen = (int) (10.5f * metrics.density + 0.5f);
+            final int margen = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10.5f, metrics));
 
 
         // colocarlo
@@ -86,6 +123,7 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
             params.rowSpec = GridLayout.spec(fila);
             params.columnSpec = GridLayout.spec(columna);
             params.setMargins(0,0,margen, margen);
+
 
 
             // agregarlo al grid
@@ -108,8 +146,7 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
-        grid = findViewById(R.id.grid_sobrepuesto);
+        inicializarGrid();
 
         generarBloque(0,0,2);
         gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener(){
@@ -122,29 +159,27 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
             public boolean onFling(@NonNull MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
                 float diffX = e2.getX() - e1.getX();
                 float diffY = e2.getY() - e1.getY();
-                // si ha sido un deslizamiento horizontal
-                Handler handler = new Handler();
 
                 // si ha sido un deslizamiento horizontal
                 if (Math.abs(diffX) > Math.abs(diffY)) {
                     // si ha sido hacia la derecha
                     if (diffX > 0) {
-                        handler.postDelayed(() -> jugada(new int[]{0, 1}), 200); // Movimiento hacia la derecha
+                        jugada(0);
                     }
                     // si ha sido hacia la izquierda
                     else {
-                        handler.postDelayed(() -> jugada(new int[]{0, -1}), 200); // Movimiento hacia la izquierda
+                        jugada(1);
                     }
                 }
                 // si ha sido un deslizamiento vertical
                 else {
                     // si ha sido hacia arriba
                     if (diffY > 0) {
-                        handler.postDelayed(() -> jugada(new int[]{1, 0}), 200); // Movimiento hacia arriba
+                        jugada(2);
                     }
                     // si ha sido hacia abajo
                     else {
-                        handler.postDelayed(() -> jugada(new int[]{-1, 0}), 200); // Movimiento hacia abajo
+                        jugada(3);
                     }
                 }
                 return true;

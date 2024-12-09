@@ -121,12 +121,13 @@
         android:columnCount="4"
         android:padding="10dp"
         android:rowCount="4"
+        android:rowOrderPreserved="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        
+
     </GridLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

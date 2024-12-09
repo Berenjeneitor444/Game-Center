@@ -11,10 +11,10 @@
         android:id="@+id/grid"
         android:layout_height="350dp"
         android:layout_width="350dp"
-        android:layout_marginStart="155dp"
-        android:layout_marginTop="365dp"
-        android:layout_marginEnd="156dp"
-        android:layout_marginBottom="366dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="0dp"
         android:columnCount="4"
         android:rowCount="4"
         android:background="@drawable/grid"
@@ -28,6 +28,7 @@
             android:background="@drawable/celda"
             android:layout_marginEnd="10.5dp"
             android:layout_marginBottom="10.5dp"
+
         />
         <TextView
             android:background="@drawable/celda"
@@ -107,6 +108,25 @@
 
 
 
+    </GridLayout>
+
+    <GridLayout
+        android:id="@+id/grid_sobrepuesto"
+        android:layout_width="350dp"
+        android:layout_height="350dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="0dp"
+        android:columnCount="4"
+        android:padding="10dp"
+        android:rowCount="4"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        
     </GridLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

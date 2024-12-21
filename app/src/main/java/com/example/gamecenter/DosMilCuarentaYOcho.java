@@ -1,8 +1,10 @@
 package com.example.gamecenter;
 
+import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -20,13 +22,14 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.util.HashMap;
 import java.util.Random;
 
 public class DosMilCuarentaYOcho extends AppCompatActivity {
 
     private GridLayout grid;
     private final int[][] matrizGrid = new int[4][4];
-    private final int[] coordenadasBloque = new int[2];
+    private final HashMap<Point, TextView> mapaBloques = new HashMap<>();
     private final Random radint = new Random();
     private GestureDetector gestureDetector;
 
@@ -59,25 +62,39 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
             grid.addView(space, params);
         }
     }
-    private int[] generarCoordenadasAleatorias(){
-        int[] coordenadas = new int[2];
-        coordenadas[0] = radint.nextInt(4);
-        coordenadas[1] = radint.nextInt(4);
-        while (estaOcupado(coordenadas[0], coordenadas[1])){
-            coordenadas[0] = radint.nextInt(4);
-            coordenadas[1] = radint.nextInt(4);
-        }
+    private Point generarCoordenadasAleatorias(){
+        Point coordenadas = new Point();
+        do {
+            coordenadas.set(radint.nextInt(4),radint.nextInt(4));
+        } while (estaOcupado(coordenadas.y, coordenadas.x));
         return coordenadas;
     }
     private boolean estaOcupado(int fila, int columna){
         return matrizGrid[fila][columna] != 0;
     }
-
-    public boolean moverBloque(TextView bloque,  int[] direccion){
-        // IMPORTANTE CAMBIAR METODO DE RECOGIDA DE COORDENADAS
+    private void sumarBloques(Point posicionBloqueActivo, Point posicionBloquePasivo){
+        TextView bloqueActivo = mapaBloques.get(posicionBloqueActivo);
+        TextView bloquePasivo = mapaBloques.get(posicionBloquePasivo);
+        int numeroBloqueFinal = Integer.parseInt(bloquePasivo.getText().toString() + bloqueActivo.getText().toString());
+        grid.removeView(bloquePasivo);
+        grid.removeView(bloqueActivo);
+        mapaBloques.remove(posicionBloqueActivo);
+        mapaBloques.remove(posicionBloquePasivo);
+        matrizGrid[posicionBloqueActivo.y][posicionBloqueActivo.x] = 0;
+        matrizGrid[posicionBloquePasivo.y][posicionBloquePasivo.x] = 0;
+        generarBloque(posicionBloquePasivo, numeroBloqueFinal);
+    }
+    public boolean moverBloque(Point coordenadasBloque,  int[] direccion){
         boolean seHaMovidoAlgo = false;
-        int fila = coordenadasBloque[0];
-        int columna = coordenadasBloque[1];
+
+
+
+        int fila = coordenadasBloque.y;
+        int columna = coordenadasBloque.x;
+        TextView bloque = mapaBloques.get(coordenadasBloque);
+        // crear point sobre el que trabajaremos, conservando el original
+        Point coordenadasNuevas = new Point(coordenadasBloque);
+
         int filaNueva = fila;
         int columnaNueva = columna;
         // si la fila no cambia, asumo que se va a mover horizontalmente
@@ -88,6 +105,7 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
                 for (int i = columna + 1; i < 4; i++){
                     // si ya está ocupado sal del bucle y te quedas con la coordenada anterior
                     if (estaOcupado(fila, i)){
+
                         break;
                     }
                     else {
@@ -103,11 +121,12 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
                         break;
                     }
                     else {
-                            columnaNueva = i;
+                        columnaNueva = i;
                         seHaMovidoAlgo = true;
                     }
                 }
             }
+
         }
         // si la columna no cambia, asumo que se va a mover verticalmente
         if (direccion[1] == 0){
@@ -136,8 +155,11 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
                     }
                 }
             }
-
+        if (!seHaMovidoAlgo){
+            return seHaMovidoAlgo;
+        }
         // crear sus nuevos parametros de posicionamiento nuevo
+
         GridLayout.LayoutParams params = (GridLayout.LayoutParams)bloque.getLayoutParams();
         params.rowSpec = GridLayout.spec(filaNueva);
         params.columnSpec = GridLayout.spec(columnaNueva);
@@ -148,24 +170,54 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
         matrizGrid[fila][columna] = 0;
 
         // actualizo las coordenadas
-        coordenadasBloque[0] = filaNueva;
-        coordenadasBloque[1] = columnaNueva;
+        coordenadasNuevas.x = columnaNueva;
+        coordenadasNuevas.y = filaNueva;
+        // actualizo el mapa de bloques
+        mapaBloques.remove(coordenadasBloque);
+        mapaBloques.put(coordenadasNuevas, bloque);
         return seHaMovidoAlgo;
     }
     public void jugada(int[] direccion) {
         boolean seHaMovidoAlgo = false;
 
-        // mover los bloques
-        for (int i = 7; i < grid.getChildCount(); i++){
-            if (moverBloque((TextView) grid.getChildAt(i), direccion)){
-                seHaMovidoAlgo = true;
+        int movimientoY = direccion[0];
+        int movimientoX = direccion[1];
+    // necesito adaptar la jugada al tipo de movimiento para que funcione correctamente
+
+        // si el movimiento es hacia arriba o hacia la izquierda
+        if (movimientoY == -1 || movimientoX == -1){
+            for (int Y = 0; Y < 4; Y++){
+                for (int X = 0; X < 4; X++) {
+                    if (matrizGrid[Y][X] != 0){
+                        Point coordenadasBloque = new Point(X,Y);
+                        if (moverBloque(coordenadasBloque, direccion)){
+                            seHaMovidoAlgo = true;
+                        }
+                    }
+
+                }
+            }
+        }
+        // si el movimiento es hacia abajo o hacia la derecha
+        else {
+            for (int Y = 3; Y > -1; Y--){
+                for (int X = 3; X > -1; X--) {
+                    if (matrizGrid[Y][X] != 0){
+                        Point coordenadasBloque = new Point(X, Y);
+                        if (moverBloque(coordenadasBloque, direccion)){
+                            seHaMovidoAlgo = true;
+                        }
+                    }
+
+                }
             }
         }
 
+
         // genero otro bloque
         if (seHaMovidoAlgo){
-            int[] coordenadasNuevas = generarCoordenadasAleatorias();
-            generarBloque(coordenadasNuevas[0], coordenadasNuevas[1], radint.nextBoolean() ? 2 : 4);
+            Point coordenadasNuevas = generarCoordenadasAleatorias();
+            generarBloque(coordenadasNuevas, radint.nextBoolean() ? 2 : 4);
         }
         // refresco la vista del grid
         grid.invalidate();
@@ -173,18 +225,61 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
 
     }
 // SEGUIR MAÑANA EN ESTE METODO
-    public void generarBloque(int fila, int columna, int numero) {
+    public void generarBloque(Point coordenadas, int numero) {
         // crear bloque
         TextView bloque = new TextView(this);
         bloque.setText(String.valueOf(numero));
-            if(numero == 2){
+        switch (numero){
+            case 2:
                 bloque.setBackground(ContextCompat.getDrawable(this, R.drawable.dos));
-            }
-            else if (numero == 4){
+                bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_oscuro));
+                break;
+            case 4:
                 bloque.setBackground(ContextCompat.getDrawable(this, R.drawable.cuatro));
-            }
+                bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_oscuro));
+                break;
+            case 8:
+                bloque.setBackgroundColor(ContextCompat.getColor(this, R.color.ocho));
+                bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_blanco));
+                break;
+                case 16:
+                bloque.setBackgroundColor(ContextCompat.getColor(this, R.color.dieciseis));
+                bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_blanco));
+                break;
 
-        bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_oscuro));
+                case 32:
+                bloque.setBackgroundColor(ContextCompat.getColor(this, R.color.treintaydos));
+                bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_blanco));
+                break;
+
+                case 64:
+                bloque.setBackgroundColor(ContextCompat.getColor(this, R.color.sesentaycuatro));
+                bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_blanco));
+                break;
+                case 128:
+                bloque.setBackgroundColor(ContextCompat.getColor(this, R.color.cientoveintiocho));
+                bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_blanco));
+                break;
+                case 256:
+                bloque.setBackgroundColor(ContextCompat.getColor(this, R.color.doscientoscincuentayseis));
+                bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_blanco));
+                break;
+                case 512:
+                bloque.setBackgroundColor(ContextCompat.getColor(this, R.color.quinientosdieciseis));
+                bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_blanco));
+                break;
+                case 1024:
+                bloque.setBackgroundColor(ContextCompat.getColor(this, R.color.doscientoscincuentayseis));
+                bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_blanco));
+                break;
+                case 2048:
+                bloque.setBackgroundColor(ContextCompat.getColor(this, R.color.dosmilcuarentayocho));
+                bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_blanco));
+                break;
+
+        }
+
+
         bloque.setTextSize(TypedValue.COMPLEX_UNIT_SP, 40);
         bloque.setGravity(Gravity.CENTER);
         bloque.setTypeface(null, Typeface.BOLD);
@@ -198,8 +293,8 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
 
             // especifico la fila y la columna
         GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-        params.rowSpec = GridLayout.spec(fila);
-        params.columnSpec = GridLayout.spec(columna);
+        params.rowSpec = GridLayout.spec(coordenadas.y);
+        params.columnSpec = GridLayout.spec(coordenadas.x);
         params.setMargins(0,0,margen, margen);
 
 
@@ -207,9 +302,9 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
         // agregarlo al grid
         grid.addView(bloque, params);
         // actualizar matriz para tenerlo localizado
-        matrizGrid[fila][columna] = numero;
-        coordenadasBloque[0] = fila;
-        coordenadasBloque[1] = columna;
+        matrizGrid[coordenadas.y][coordenadas.x] = numero;
+        // actualizar mapa de bloques
+        mapaBloques.put(coordenadas, bloque);
 
     }
 
@@ -226,8 +321,8 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
         // inicializo el grid
         inicializarGrid();
         // genero el primer bloque
-        int [] coordenadas = generarCoordenadasAleatorias();
-        generarBloque(coordenadas[0], coordenadas[1], radint.nextBoolean() ? 2 : 4);
+        Point coordenadas = generarCoordenadasAleatorias();
+        generarBloque(coordenadas, radint.nextBoolean() ? 2 : 4);
         // inicializo el detector de gestos
         gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener(){
             @Override

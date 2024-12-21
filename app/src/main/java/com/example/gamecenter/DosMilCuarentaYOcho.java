@@ -28,6 +28,9 @@ import java.util.Random;
 public class DosMilCuarentaYOcho extends AppCompatActivity {
 
     private GridLayout grid;
+    private int tamañoCelda;
+    private int tamañoMargenesCelda;
+    private int gridCellHeight;
     private final int[][] matrizGrid = new int[4][4];
     private final HashMap<Point, TextView> mapaBloques = new HashMap<>();
     private final Random radint = new Random();
@@ -36,17 +39,17 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
     private void inicializarGrid(){
         grid = findViewById(R.id.grid_sobrepuesto);
         DisplayMetrics metrics = getResources().getDisplayMetrics();
-        final int proporcion = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 74.375f, metrics));
-        final int margen = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10.5f, metrics));
+        tamañoCelda = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 74.375f, metrics));
+        tamañoMargenesCelda = Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10.5f, metrics));
         // Agrega una fila de Space views en la fila 0
         for (int i = 0; i < grid.getColumnCount(); i++) {
             Space space = new Space(getApplicationContext());
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.rowSpec = GridLayout.spec(0);
             params.columnSpec = GridLayout.spec(i);
-            params.height = proporcion;
-            params.width = proporcion;
-            params.setMargins(0,0,margen,margen);
+            params.height = tamañoCelda;
+            params.width = tamañoCelda;
+            params.setMargins(0,0,tamañoMargenesCelda,tamañoMargenesCelda);
             grid.addView(space, params);
         }
 
@@ -56,11 +59,12 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.rowSpec = GridLayout.spec(i);
             params.columnSpec = GridLayout.spec(0);
-            params.width = proporcion;
-            params.height = proporcion;
-            params.setMargins(0,0,margen,margen);
+            params.width = tamañoCelda;
+            params.height = tamañoCelda;
+            params.setMargins(0,0,tamañoMargenesCelda,tamañoMargenesCelda);
             grid.addView(space, params);
         }
+
     }
     private Point generarCoordenadasAleatorias(){
         Point coordenadas = new Point();
@@ -72,10 +76,19 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
     private boolean estaOcupado(int fila, int columna){
         return matrizGrid[fila][columna] != 0;
     }
-    private void sumarBloques(Point posicionBloqueActivo, Point posicionBloquePasivo){
+    private boolean sumarBloques(Point posicionBloqueActivo, Point posicionBloquePasivo){
         TextView bloqueActivo = mapaBloques.get(posicionBloqueActivo);
         TextView bloquePasivo = mapaBloques.get(posicionBloquePasivo);
-        int numeroBloqueFinal = Integer.parseInt(bloquePasivo.getText().toString() + bloqueActivo.getText().toString());
+        assert bloqueActivo != null;
+        assert bloquePasivo != null;
+        int numeroPasivo = Integer.parseInt(bloquePasivo.getText().toString());
+        int numeroActivo = Integer.parseInt(bloqueActivo.getText().toString());
+        // si no es igual devuelve false
+        if(numeroActivo != numeroPasivo){
+            return false;
+        }
+        // si es igual, lo suma
+        int numeroBloqueFinal = numeroActivo + numeroPasivo;
         grid.removeView(bloquePasivo);
         grid.removeView(bloqueActivo);
         mapaBloques.remove(posicionBloqueActivo);
@@ -83,12 +96,11 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
         matrizGrid[posicionBloqueActivo.y][posicionBloqueActivo.x] = 0;
         matrizGrid[posicionBloquePasivo.y][posicionBloquePasivo.x] = 0;
         generarBloque(posicionBloquePasivo, numeroBloqueFinal);
+        return true;
     }
     public boolean moverBloque(Point coordenadasBloque,  int[] direccion){
         boolean seHaMovidoAlgo = false;
-
-
-
+        Boolean movimientoHorizontal = null;
         int fila = coordenadasBloque.y;
         int columna = coordenadasBloque.x;
         TextView bloque = mapaBloques.get(coordenadasBloque);
@@ -99,14 +111,20 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
         int columnaNueva = columna;
         // si la fila no cambia, asumo que se va a mover horizontalmente
         if (direccion[0] == 0){
-
+            movimientoHorizontal = true;
             // se mueve a la derecha
             if (direccion[1] > 0){
                 for (int i = columna + 1; i < 4; i++){
-                    // si ya está ocupado sal del bucle y te quedas con la coordenada anterior
+                    // si ya está ocupado comprueba si se pueden sumar, si se pueden sumar sale del metodo
+                    // si no continua con el metodo
                     if (estaOcupado(fila, i)){
-
-                        break;
+                        if (sumarBloques(coordenadasBloque, new Point(i, filaNueva))){
+                            seHaMovidoAlgo = true;
+                            return seHaMovidoAlgo;
+                        }
+                        else{
+                            break;
+                        }
                     }
                     else {
                         columnaNueva = i;
@@ -118,7 +136,13 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
             if (direccion[1] < 0){
                 for (int i = columna - 1; i >= 0; i--){
                     if (estaOcupado(fila, i)){
-                        break;
+                        if (sumarBloques(coordenadasBloque, new Point(i, filaNueva))){
+                            seHaMovidoAlgo = true;
+                            return seHaMovidoAlgo;
+                        }
+                        else {
+                            break;
+                        }
                     }
                     else {
                         columnaNueva = i;
@@ -130,11 +154,18 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
         }
         // si la columna no cambia, asumo que se va a mover verticalmente
         if (direccion[1] == 0){
+            movimientoHorizontal = false;
             // se mueve hacia abajo
             if (direccion[0] > 0){
                 for (int i = fila + 1; i < 4; i++){
                     if (estaOcupado(i, columna)){
-                        break;
+                        if (sumarBloques(coordenadasBloque, new Point(columnaNueva, i))){
+                            seHaMovidoAlgo = true;
+                            return seHaMovidoAlgo;
+                        }
+                        else{
+                            break;
+                        }
                     }
                     else {
                         filaNueva = i;
@@ -146,7 +177,13 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
                 if (direccion[0] < 0){
                     for (int i = fila - 1; i >= 0; i--){
                         if (estaOcupado(i, columna)){
-                            break;
+                            if(sumarBloques(coordenadasBloque, new Point(columnaNueva, i))){
+                                seHaMovidoAlgo = true;
+                                return seHaMovidoAlgo;
+                            }
+                            else {
+                                break;
+                            }
                         }
                         else {
                             filaNueva = i;
@@ -160,6 +197,13 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
         }
         // crear sus nuevos parametros de posicionamiento nuevo
 
+        assert bloque != null;
+        // --------------- ANIMACION ---------------------------------
+        if (movimientoHorizontal){
+            float deltaX = columnaNueva * tamañoCelda - columna * tamañoCelda;
+
+        }
+        // --------------- FIN ANIMACION -----------------------------
         GridLayout.LayoutParams params = (GridLayout.LayoutParams)bloque.getLayoutParams();
         params.rowSpec = GridLayout.spec(filaNueva);
         params.columnSpec = GridLayout.spec(columnaNueva);
@@ -239,41 +283,41 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
                 bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_oscuro));
                 break;
             case 8:
-                bloque.setBackgroundColor(ContextCompat.getColor(this, R.color.ocho));
+                bloque.setBackground(ContextCompat.getDrawable(this, R.drawable.ocho));
                 bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_blanco));
                 break;
                 case 16:
-                bloque.setBackgroundColor(ContextCompat.getColor(this, R.color.dieciseis));
+                bloque.setBackground(ContextCompat.getDrawable(this, R.drawable.dieciseis));
                 bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_blanco));
                 break;
 
                 case 32:
-                bloque.setBackgroundColor(ContextCompat.getColor(this, R.color.treintaydos));
+                bloque.setBackground(ContextCompat.getDrawable(this, R.drawable.treintaydos));
                 bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_blanco));
                 break;
 
                 case 64:
-                bloque.setBackgroundColor(ContextCompat.getColor(this, R.color.sesentaycuatro));
+                bloque.setBackground(ContextCompat.getDrawable(this, R.drawable.sesentaycuatro));
                 bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_blanco));
                 break;
                 case 128:
-                bloque.setBackgroundColor(ContextCompat.getColor(this, R.color.cientoveintiocho));
+                bloque.setBackground(ContextCompat.getDrawable(this, R.drawable.cientoveintiocho));
                 bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_blanco));
                 break;
                 case 256:
-                bloque.setBackgroundColor(ContextCompat.getColor(this, R.color.doscientoscincuentayseis));
+                bloque.setBackground(ContextCompat.getDrawable(this, R.drawable.doscientoscincuentayseis));
                 bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_blanco));
                 break;
                 case 512:
-                bloque.setBackgroundColor(ContextCompat.getColor(this, R.color.quinientosdieciseis));
+                bloque.setBackground(ContextCompat.getDrawable(this, R.drawable.quinientosdieciseis));
                 bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_blanco));
                 break;
                 case 1024:
-                bloque.setBackgroundColor(ContextCompat.getColor(this, R.color.doscientoscincuentayseis));
+                bloque.setBackground(ContextCompat.getDrawable(this, R.drawable.doscientoscincuentayseis));
                 bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_blanco));
                 break;
                 case 2048:
-                bloque.setBackgroundColor(ContextCompat.getColor(this, R.color.dosmilcuarentayocho));
+                bloque.setBackground(ContextCompat.getDrawable(this, R.drawable.dosmilcuarentayocho));
                 bloque.setTextColor(ContextCompat.getColor(this, R.color.numero_blanco));
                 break;
 
@@ -297,7 +341,13 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
         params.columnSpec = GridLayout.spec(coordenadas.x);
         params.setMargins(0,0,margen, margen);
 
+        // ------------------ANIMACION------------------------
 
+        bloque.setScaleX(0f);
+        bloque.setScaleY(0f);
+        bloque.animate().scaleX(1f).scaleY(1f).setDuration(400).start();
+
+        // -------------------FIN ANIMACION-------------------
 
         // agregarlo al grid
         grid.addView(bloque, params);

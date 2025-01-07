@@ -1,7 +1,12 @@
 package com.example.gamecenter;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.ImageView;
 
 import androidx.activity.EdgeToEdge;
@@ -9,12 +14,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.dynamicanimation.animation.FlingAnimation;
 
 public class FlappyBirds extends AppCompatActivity {
 
     private ImageView pajarraco;
     private boolean juegoIniciado = false;
+    private ObjectAnimator gravityAnimator;
+    private ObjectAnimator jumpAnimator;
+    int posicionFinal;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,20 +33,42 @@ public class FlappyBirds extends AppCompatActivity {
             return insets;
         });
         pajarraco = findViewById(R.id.pajarraco);
+
+
         findViewById(R.id.main).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!juegoIniciado){
-                    empezarPartida();
-                    juegoIniciado = true;
+                if (gravityAnimator != null && gravityAnimator.isRunning()) {
+                    gravityAnimator.cancel();
                 }
+                if (jumpAnimator != null && jumpAnimator.isRunning()) {
+                    jumpAnimator.cancel();
+                }
+                salto();
             }
         });
+
     }
-    private void empezarPartida(){
-        FlingAnimation fling = new FlingAnimation(pajarraco, FlingAnimation.TRANSLATION_Y);
-        fling.setStartVelocity(1000);
-        fling.setFriction(1);
-        fling.start();
+
+
+
+    private void salto(){
+
+        posicionFinal = Resources.getSystem().getDisplayMetrics().heightPixels - pajarraco.getHeight();
+        jumpAnimator = ObjectAnimator.ofFloat(pajarraco, "y", pajarraco.getY(), pajarraco.getY() - 200);
+        jumpAnimator.setDuration(200);
+
+
+        jumpAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+
+                gravityAnimator = ObjectAnimator.ofFloat(pajarraco, "y", pajarraco.getY(), posicionFinal);
+                gravityAnimator.setDuration(1000);
+                gravityAnimator.setInterpolator(new AccelerateInterpolator());
+                gravityAnimator.start();
+            }
+        });
+        jumpAnimator.start();
     }
 }

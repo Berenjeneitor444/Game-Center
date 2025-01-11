@@ -4,14 +4,23 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.res.Resources;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.Insets;
@@ -26,11 +35,21 @@ public class FlappyBirds extends AppCompatActivity {
     private boolean juegoIniciado = false;
     private ObjectAnimator gravityAnimator;
     private ObjectAnimator jumpAnimator;
-    int posicionFinal;
-    final int fragmentoPantalla = Resources.getSystem().getDisplayMetrics().heightPixels / 10;
-    final int anchoPared = (int) ((float)Resources.getSystem().getDisplayMetrics().widthPixels * 0.16f);
-    final Random random = new Random();
+    private int posicionFinal;
+    final private DisplayMetrics displayMetrics = Resources.getSystem().getDisplayMetrics();
+    final private int fragmentoPantalla = Resources.getSystem().getDisplayMetrics().heightPixels / 10;
+    final private int anchoPared = (int) ((float) Resources.getSystem().getDisplayMetrics().widthPixels * 0.16f);
+    final private Random random = new Random();
     final private Handler handler = new Handler();
+    private boolean gameOver = false;
+    final private Runnable timerWall = new Runnable() {
+        @Override
+        public void run() {
+            wallGenerator();
+            handler.postDelayed(this, 2000);
+        }
+
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,17 +67,13 @@ public class FlappyBirds extends AppCompatActivity {
         findViewById(R.id.main).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (gameOver) {
+                    return;
+                }
                 if (!juegoIniciado) {
                     juegoIniciado = true;
-                    Runnable TimerWall = new Runnable() {
-                        @Override
-                        public void run() {
-                            wallGenerator();
-                            handler.postDelayed(this, 2000);
-                        }
 
-                    };
-                    handler.post(TimerWall);
+                    handler.post(timerWall);
                 }
                 if (gravityAnimator != null && gravityAnimator.isRunning()) {
                     gravityAnimator.cancel();
@@ -73,9 +88,14 @@ public class FlappyBirds extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        juegoIniciado = false;
+    }
 
 
-    private void salto(){
+    private void salto() {
 
         posicionFinal = Resources.getSystem().getDisplayMetrics().heightPixels - pajarraco.getHeight();
         jumpAnimator = ObjectAnimator.ofFloat(pajarraco, "y", pajarraco.getY(), pajarraco.getY() - 200);
@@ -94,31 +114,69 @@ public class FlappyBirds extends AppCompatActivity {
         });
         jumpAnimator.start();
     }
+
     // lograr generar espacios vacios del 30% de la altura jugable en sitios aleatorios
     // divido el espacio jugable en 10 partes iguales, el tamaño de esta parte lo calculo
     // segun la dimension del dispositivo
-    private void wallGenerator(){
+    private void wallGenerator() {
         // calculo cuantas fracciones de pantalla va a ocupar la primera parte del muro, y con ello calculo el resto
         int primeraParteMuro = random.nextInt(6) + 1;
         int vacio = 3;
         int segundaParteMuro = 10 - primeraParteMuro - vacio;
-        ImageView primerLadrillo = brickGenerator(primeraParteMuro,0);
-        ImageView segundoLadrillo = brickGenerator(segundaParteMuro,primeraParteMuro + vacio);
+        ImageView primerLadrillo = brickGenerator(primeraParteMuro, 0);
+        ImageView segundoLadrillo = brickGenerator(segundaParteMuro, primeraParteMuro + vacio);
         ConstraintLayout layout = findViewById(R.id.main);
         layout.addView(primerLadrillo);
         layout.addView(segundoLadrillo);
-        ObjectAnimator animator1 = ObjectAnimator.ofFloat(primerLadrillo, "x", Resources.getSystem().getDisplayMetrics().widthPixels, 0f - anchoPared);
-        animator1.setDuration(4000);
-        animator1.setInterpolator(null);
-        ObjectAnimator animator2 = ObjectAnimator.ofFloat(segundoLadrillo, "x", Resources.getSystem().getDisplayMetrics().widthPixels, 0f - anchoPared);
-        animator2.setDuration(4000);
-        animator2.setInterpolator(null);
-        AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(animator1, animator2);
-        animatorSet.start();
+        Rect hitboxPajaro = new Rect();
+        Rect hitbox1 = new Rect();
+        Rect hitbox2 = new Rect();
+        primerLadrillo.animate()
+                .x(-anchoPared)
+                .setDuration(4000)
+                .setInterpolator(null)
+
+                .start();
+
+        segundoLadrillo.animate()
+                .x(-anchoPared)
+                .setDuration(4000)
+                .setInterpolator(null)
+                .withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        layout.removeView(primerLadrillo);
+                        layout.removeView(segundoLadrillo);
+                        segundoLadrillo.destroyDrawingCache();
+                        primerLadrillo.destroyDrawingCache();
+                    }
+                })
+                // le asigno un listener que calcule cuando el pajaro este cerca del muro para detectar colisiones
+
+                .setUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+                    @Override
+                    public void onAnimationUpdate(@NonNull ValueAnimator valueAnimator) {
+                        if (pajarraco.getX()+pajarraco.getWidth() >= segundoLadrillo.getX()){
+                            if (segundoLadrillo.getX() + anchoPared - pajarraco.getX() < 0){
+                                segundoLadrillo.animate().setUpdateListener(null);
+                                return;
+                            }
+                            pajarraco.getGlobalVisibleRect(hitboxPajaro);
+                            primerLadrillo.getGlobalVisibleRect(hitbox1);
+                            segundoLadrillo.getGlobalVisibleRect(hitbox2);
+                            if (colisionDetector(hitboxPajaro, hitbox1, hitbox2)) {
+                                Log.d("colision", "colisiono");
+                                gameOver();
+                            }
+                        }
+                    }
+                })
+                .start();
 
     }
-    private ImageView brickGenerator(int fraccion, int index){
+
+    private ImageView brickGenerator(int fraccion, int index) {
         ImageView brick = new ImageView(this);
         brick.setImageResource(R.drawable.wall);
         brick.setScaleType(ImageView.ScaleType.FIT_XY);
@@ -126,7 +184,41 @@ public class FlappyBirds extends AppCompatActivity {
         params.leftToRight = ConstraintLayout.LayoutParams.PARENT_ID;
         params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID;
         params.topMargin = index * fragmentoPantalla;
+        brick.setX(displayMetrics.widthPixels);
         brick.setLayoutParams(params);
         return brick;
+    }
+
+    private boolean colisionDetector(Rect hitboxPajaro, Rect hitbox1, Rect hitbox2) {
+        return Rect.intersects(hitboxPajaro, hitbox1) || Rect.intersects(hitboxPajaro, hitbox2);
+    }
+
+    private void gameOver() {
+        gameOver = true;
+        handler.removeCallbacks(timerWall);
+        TextView gameOverText = new TextView(this);
+        gameOverText.setText(R.string.game_over);
+        gameOverText.setTextSize(50);
+        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        gameOverText.setGravity(Gravity.CENTER);
+        gameOverText.setLayoutParams(params);
+        ConstraintLayout layout = findViewById(R.id.main);
+
+        for (int i = 0; i < layout.getChildCount(); i++) {
+            View view = layout.getChildAt(i);
+            if (view instanceof ImageView) {
+                view.animate().cancel();
+            }
+        }
+        jumpAnimator.cancel();
+        gravityAnimator.start();
+        pajarraco.animate()
+                .rotation(-180)
+                .setDuration(400)
+                .start();
+        layout.addView(gameOverText);
+
     }
 }

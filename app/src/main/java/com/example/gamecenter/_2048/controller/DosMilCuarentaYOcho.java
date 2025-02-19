@@ -1,10 +1,9 @@
-package com.example.gamecenter;
+package com.example.gamecenter._2048.controller;
 
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -21,6 +20,8 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.example.gamecenter.R;
 
 import java.util.HashMap;
 import java.util.Random;

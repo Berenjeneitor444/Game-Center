@@ -13,6 +13,10 @@
         android:theme="@style/Theme.GameCenter"
         tools:targetApi="31">
         <activity
+            android:name=".SplashScreenActivity"
+            android:exported="true">
+        </activity>
+        <activity
             android:name=".FlappyBirds"
             android:exported="false" />
         <activity
@@ -25,8 +29,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DosMilCuarentaYOcho"
-            android:exported="true"></activity>
+            android:name="._2048.controller.DosMilCuarentaYOcho"
+            android:exported="true" />
     </application>
 
 </manifest>

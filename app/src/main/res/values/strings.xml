@@ -3,4 +3,6 @@
     <string name="_2048">2048</string>
     <string name="flappy_birds">Flappy Birds</string>
     <string name="game_over">GAME OVER</string>
+    <string name="puntuacion">Puntuación: %d</string>
+    <string name="puntuacion_normal">Puntuacion:</string>
 </resources>

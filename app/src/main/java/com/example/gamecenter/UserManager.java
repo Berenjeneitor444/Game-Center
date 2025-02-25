@@ -7,11 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class UserManager {
     private final SQLiteDatabase db;
+    private final MyOpenHelper helper;
 
     public UserManager(Context context) {
-        MyOpenHelper helper = new MyOpenHelper(context);
+        helper = new MyOpenHelper(context);
         db = helper.getWritableDatabase();
-        helper.close();
 
     }
     public boolean addUser(String username, String password) {
@@ -42,6 +42,7 @@ public class UserManager {
     }
     public void close(){
         db.close();
+        helper.close();
     }
 
 }

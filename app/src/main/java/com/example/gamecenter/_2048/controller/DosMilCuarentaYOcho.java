@@ -1,5 +1,8 @@
 package com.example.gamecenter._2048.controller;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -24,9 +27,10 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.gamecenter.R;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Random;
 
-public class DosMilCuarentaYOcho extends AppCompatActivity {
+public class DosMilCuarentaYOcho extends AppCompatActivity implements Runnable {
 
     private GridLayout grid;
     private int tamañoCelda;
@@ -36,6 +40,8 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
     private final HashMap<Point, TextView> mapaBloques = new HashMap<>();
     private final Random radint = new Random();
     private GestureDetector gestureDetector;
+    private int score = 0;
+    private Boolean juegoEnCurso = null;
 
     private void inicializarGrid(){
         grid = findViewById(R.id.grid_sobrepuesto);
@@ -90,6 +96,7 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
         }
         // si es igual, lo suma
         int numeroBloqueFinal = numeroActivo + numeroPasivo;
+        score += numeroBloqueFinal;
         grid.removeView(bloquePasivo);
         grid.removeView(bloqueActivo);
         mapaBloques.remove(posicionBloqueActivo);
@@ -223,6 +230,35 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
         return seHaMovidoAlgo;
     }
     public void jugada(int[] direccion) {
+        // comprueba game over al principio
+        if(juegoEnCurso == null){
+            // si es la primera jugada inicio el contador
+            juegoEnCurso = true;
+            new Thread(DosMilCuarentaYOcho.this).start();
+        }
+        if(!juegoEnCurso){
+            // si esta terminado no deja hacer jugada
+            return;
+        }
+
+        if (esGameOver()){
+            juegoEnCurso = false;
+            // animo la aparicion del mensaje de gameOver
+            ObjectAnimator fadeIn = ObjectAnimator.ofFloat(findViewById(R.id.game_over), "alpha", 0f, 1f);
+            fadeIn.setDuration(1000);
+            fadeIn.start();
+
+            // Cambiar la visibilidad a VISIBLE después de la animación para asegurar que se vea
+            fadeIn.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    findViewById(R.id.game_over).setVisibility(View.VISIBLE);
+                }
+            });
+            return;
+        }
+
         boolean seHaMovidoAlgo = false;
 
         int movimientoY = direccion[0];
@@ -264,6 +300,10 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
             Point coordenadasNuevas = generarCoordenadasAleatorias();
             generarBloque(coordenadasNuevas, radint.nextBoolean() ? 2 : 4);
         }
+        // actualizo el score
+        TextView scoreText = findViewById(R.id.scoreText);
+        scoreText.setText(getString(R.string.puntuacion, score));
+
         // refresco la vista del grid
         grid.invalidate();
         grid.requestLayout();
@@ -358,7 +398,29 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
         mapaBloques.put(coordenadas, bloque);
 
     }
-
+    public boolean esGameOver(){
+        if (!estaLleno()){
+            return false;
+        }
+        for (int i = 0; i < 4; i++){
+            for (int j = 0; j < 4; j++) {
+                int numeroBloque = matrizGrid[i][j];
+                if (j < 3 && numeroBloque == matrizGrid[i][j+1]) return false;
+                if (i < 3 && numeroBloque == matrizGrid[i+1][j]) return false;
+            }
+        }
+        return true;
+    }
+    private boolean estaLleno(){
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (matrizGrid[i][j] == 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -419,5 +481,29 @@ public class DosMilCuarentaYOcho extends AppCompatActivity {
         });
 
     }
+
+    @Override
+    public void run() {
+        int chronometer = 0;
+        while (juegoEnCurso) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return;
+            }
+            chronometer++;
+
+            int finalChronometer = chronometer;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    TextView chronoText = findViewById(R.id.chronoText);
+                    chronoText.setText(String.format(Locale.getDefault(),"%02d:%02d", finalChronometer / 60, finalChronometer % 60));
+                }
+            });
+        }
+    }
+
 }
 

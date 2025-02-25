@@ -18,5 +18,5 @@
     <color name="borde">#B0B0B0</color>
     <color name="fondo_grid">#bbada0</color>
     <color name="celda">#eee4da</color>
-    <color name="transparente">#00000000</color>
+    <color name="game_over">#4DFFFFFF</color>
 </resources>

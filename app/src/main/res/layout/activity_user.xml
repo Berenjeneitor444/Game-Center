@@ -4,21 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".flappy_birds.FlappyBirds">
+    android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/pajarraco"
-        android:layout_width="128dp"
-        android:layout_height="100dp"
-        android:background="@android:color/transparent"
-        android:adjustViewBounds="true"
-        android:scaleType="fitCenter"
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.28"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/png_image_bird_28" />
-
+        tools:context=".UserActivity"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

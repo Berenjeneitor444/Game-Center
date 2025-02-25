@@ -13,11 +13,16 @@
         android:theme="@style/Theme.GameCenter"
         tools:targetApi="31">
         <activity
-            android:name=".SplashScreenActivity"
-            android:exported="true">
-        </activity>
+            android:name=".UserActivity"
+            android:exported="false" />
         <activity
-            android:name=".FlappyBirds"
+            android:name=".SplashScreen"
+            android:exported="false" />
+        <activity
+            android:name=".SplashScreenActivity"
+            android:exported="true" />
+        <activity
+            android:name=".flappy_birds.FlappyBirds"
             android:exported="false" />
         <activity
             android:name=".Menu"

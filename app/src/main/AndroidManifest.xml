@@ -6,32 +6,33 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/berenjena"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.GameCenter"
-        tools:targetApi="31">
+        android:theme="@style/AppTheme"
+        tools:targetApi="30">
+        <activity
+            android:name=".ScoreDisplayer"
+            android:exported="false" />
         <activity
             android:name=".UserActivity"
-            android:exported="false" />
+            android:exported="true">
+        </activity>
+
         <activity
-            android:name=".SplashScreen"
-            android:exported="false" />
-        <activity
-            android:name=".SplashScreenActivity"
-            android:exported="true" />
+            android:name=".SplashActivity"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".flappy_birds.FlappyBirds"
             android:exported="false" />
         <activity
             android:name=".Menu"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name="._2048.controller.DosMilCuarentaYOcho"

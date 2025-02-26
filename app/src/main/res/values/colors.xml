@@ -19,4 +19,38 @@
     <color name="fondo_grid">#bbada0</color>
     <color name="celda">#eee4da</color>
     <color name="game_over">#4DFFFFFF</color>
+    <color name="menu_background">#2C3E50</color>
+    <color name="color_2048">#F39C12</color>
+    <color name="color_flappy">#3498DB</color>
+    <color name="color_scores">#e74c3c</color>
+    <color name="color_scores_translucent">#80E74C3C</color>
+    <!-- Brand colors -->
+    <color name="primary">#4E42B8</color>
+    <color name="primary_dark">#3C3282</color>
+    <color name="primary_light">#9A91E9</color>
+    <color name="accent">#FF5722</color>
+    <color name="accent_dark">#DB4A1D</color>
+
+    <!-- Game colors -->
+    <color name="game_2048">#FFC107</color>
+    <color name="game_flappy">#03A9F4</color>
+    <color name="game_scores">#4CAF50</color>
+
+    <!-- Neutrals -->
+    <color name="background">#F5F5F7</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="divider">#E0E0E0</color>
+
+    <!-- Text colors -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#9E9E9E</color>
+    <color name="text_disabled">#BDBDBD</color>
+    <color name="text_on_primary">#FFFFFF</color>
+    <color name="text_on_accent">#FFFFFF</color>
+
+    <!-- Switch colors -->
+    <color name="switch_thumb_tint">@color/accent</color>
+    <color name="switch_track_tint">#80FF5722</color>
 </resources>

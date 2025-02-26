@@ -1,12 +1,29 @@
 <resources>
     <string name="app_name">Game Center</string>
-    <string name="_2048">2048</string>
-    <string name="flappy_birds">Flappy Birds</string>
     <string name="game_over">GAME OVER</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="tv_register">¿No tienes cuenta? Regístrate</string>
     <string name="login">Iniciar sesión</string>
     <string name="passwd">Contraseña</string>
     <string name="user_name">Nombre de usuario</string>
+    <string name="puntuacion">"Puntuación: %d"</string>
+    <string name="tv_login">¿Ya tienes una cuenta? Inicia sesión</string>
+    <string name="register">Registro</string>
+    <string name="puntuacion_normal">"Puntuacion: 0"</string>
+
+    <string name="app_title">GAME CENTER</string>
+    <string name="app_subtitle">POCHO GAMES</string>
+    <string name="games_title">Elige un juego</string>
+    <string name="_2048">2048</string>
+    <string name="flappy_birds">Flappy Birds</string>
+    <string name="game_scores">Puntuaciones</string>
+    <string name="version_info">Versión 1.0</string>
+
+    <string name="scores_title">Puntuaciones</string>
+    <string name="filter_title">Filtros</string>
+    <string name="select_game">Seleccionar juego</string>
+    <string name="my_scores_only">Solo mis puntuaciones</string>
+    <string name="results_title">Resultados</string>
+    <string name="decorative_element">Elemento decorativo</string>
+    <string name="footer_text">GAME CENTER</string>
 </resources>

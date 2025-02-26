@@ -1,5 +1,6 @@
 package com.example.gamecenter;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -13,6 +14,7 @@ public class UserActivity extends AppCompatActivity {
     private final LoginFragment loginFragment = new LoginFragment();
     private FragmentType currentFragment = FragmentType.LOGIN;
     private enum FragmentType { REGISTER, LOGIN }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,5 +38,10 @@ public class UserActivity extends AppCompatActivity {
         transaction.addToBackStack(null);
         transaction.commit();
         currentFragment = currentFragment == FragmentType.LOGIN ? FragmentType.REGISTER : FragmentType.LOGIN;
+    }
+    public void toMenu(UserDTO userDTO){
+        Intent intent = new Intent(getApplicationContext(), Menu.class);
+        intent.putExtra("current_user", userDTO);
+        startActivity(intent);
     }
 }

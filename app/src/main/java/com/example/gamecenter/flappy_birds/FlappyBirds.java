@@ -25,11 +25,17 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.gamecenter.GameDTO;
+import com.example.gamecenter.GameName;
 import com.example.gamecenter.R;
+import com.example.gamecenter.ScoreDTO;
+import com.example.gamecenter.ScoreManager;
+import com.example.gamecenter.UserDTO;
 
+import java.util.Locale;
 import java.util.Random;
 
-public class FlappyBirds extends AppCompatActivity {
+public class FlappyBirds extends AppCompatActivity implements Runnable {
 
     private ImageView pajarraco;
     private boolean juegoIniciado = false;
@@ -42,6 +48,9 @@ public class FlappyBirds extends AppCompatActivity {
     final private Random random = new Random();
     final private Handler handler = new Handler();
     private boolean gameOver = false;
+    private int score = 0;
+    private UserDTO userPlaying;
+    private int chronometer;
     final private Runnable timerWall = new Runnable() {
         @Override
         public void run() {
@@ -61,6 +70,12 @@ public class FlappyBirds extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        TextView scoreText = findViewById(R.id.scoreText);
+        scoreText.bringToFront();
+        TextView chronoText = findViewById(R.id.chronoText);
+        chronoText.bringToFront();
+
+        userPlaying = (UserDTO) getIntent().getSerializableExtra("current_user");
         pajarraco = findViewById(R.id.pajarraco);
 
 
@@ -72,7 +87,8 @@ public class FlappyBirds extends AppCompatActivity {
                 }
                 if (!juegoIniciado) {
                     juegoIniciado = true;
-
+                    Thread chronoThread = new Thread(FlappyBirds.this);
+                    chronoThread.start();
                     handler.post(timerWall);
                 }
                 if (gravityAnimator != null && gravityAnimator.isRunning()) {
@@ -123,11 +139,12 @@ public class FlappyBirds extends AppCompatActivity {
         int primeraParteMuro = random.nextInt(6) + 1;
         int vacio = 3;
         int segundaParteMuro = 10 - primeraParteMuro - vacio;
-        ImageView primerLadrillo = brickGenerator(primeraParteMuro, 0);
-        ImageView segundoLadrillo = brickGenerator(segundaParteMuro, primeraParteMuro + vacio);
+        Brick primerLadrillo = brickGenerator(primeraParteMuro, 0);
+        Brick segundoLadrillo = brickGenerator(segundaParteMuro, primeraParteMuro + vacio);
         ConstraintLayout layout = findViewById(R.id.main);
-        layout.addView(primerLadrillo);
-        layout.addView(segundoLadrillo);
+        layout.addView(primerLadrillo, 0);
+        layout.addView(segundoLadrillo, 0);
+
         Rect hitboxPajaro = new Rect();
         Rect hitbox1 = new Rect();
         Rect hitbox2 = new Rect();
@@ -157,8 +174,15 @@ public class FlappyBirds extends AppCompatActivity {
 
                     @Override
                     public void onAnimationUpdate(@NonNull ValueAnimator valueAnimator) {
-                        if (pajarraco.getX()+pajarraco.getWidth() >= segundoLadrillo.getX()){
-                            if (segundoLadrillo.getX() + anchoPared - pajarraco.getX() < 0){
+                        if (pajarraco.getX() >= segundoLadrillo.getX() + segundoLadrillo.getWidth() &&
+                        !segundoLadrillo.isAlredyScored()){
+                            score++;
+                            TextView scoreText = findViewById(R.id.scoreText);
+                            scoreText.setText(getString(R.string.puntuacion, score));
+                            segundoLadrillo.setAlredyScored(true);
+                        }
+                        if (pajarraco.getX() + pajarraco.getWidth() >= segundoLadrillo.getX()) {
+                            if (segundoLadrillo.getX() + anchoPared - pajarraco.getX() < 0) {
                                 segundoLadrillo.animate().setUpdateListener(null);
                                 return;
                             }
@@ -176,8 +200,8 @@ public class FlappyBirds extends AppCompatActivity {
 
     }
 
-    private ImageView brickGenerator(int fraccion, int index) {
-        ImageView brick = new ImageView(this);
+    private Brick brickGenerator(int fraccion, int index) {
+        Brick brick = new Brick(this);
         brick.setImageResource(R.drawable.wall);
         brick.setScaleType(ImageView.ScaleType.FIT_XY);
         ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(anchoPared, fraccion * fragmentoPantalla);
@@ -190,20 +214,29 @@ public class FlappyBirds extends AppCompatActivity {
     }
 
     private boolean colisionDetector(Rect hitboxPajaro, Rect hitbox1, Rect hitbox2) {
+        // hacerlo mas pequeño
+        hitboxPajaro = reduceHitbox(hitboxPajaro, 0.5f);
         return Rect.intersects(hitboxPajaro, hitbox1) || Rect.intersects(hitboxPajaro, hitbox2);
     }
 
     private void gameOver() {
         gameOver = true;
         handler.removeCallbacks(timerWall);
-        TextView gameOverText = new TextView(this);
-        gameOverText.setText(R.string.game_over);
-        gameOverText.setTextSize(50);
-        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        gameOverText.setGravity(Gravity.CENTER);
-        gameOverText.setLayoutParams(params);
+        // coloco el cartel de game over
+        TextView gameOverTextView = findViewById(R.id.game_over);
+        gameOverTextView.bringToFront();
+        ObjectAnimator fadeIn = ObjectAnimator.ofFloat(gameOverTextView, "alpha", 0f, 1f);
+        fadeIn.setDuration(1000);
+        fadeIn.start();
+
+        // Cambiar la visibilidad a VISIBLE después de la animación para asegurar que se vea
+        fadeIn.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                gameOverTextView.setVisibility(View.VISIBLE);
+            }
+        });
         ConstraintLayout layout = findViewById(R.id.main);
 
         for (int i = 0; i < layout.getChildCount(); i++) {
@@ -218,7 +251,58 @@ public class FlappyBirds extends AppCompatActivity {
                 .rotation(-180)
                 .setDuration(400)
                 .start();
-        layout.addView(gameOverText);
+        saveScore();
 
+    }
+
+    public Rect reduceHitbox(Rect originalHitbox, float factor) {
+        // Calcular el centro del rectángulo original
+        int centerX = (originalHitbox.left + originalHitbox.right) / 2;
+        int centerY = (originalHitbox.top + originalHitbox.bottom) / 2;
+
+        // Calcular las nuevas dimensiones, ajustadas por el factor
+        int newWidth = (int) (originalHitbox.width() * factor);
+        int newHeight = (int) (originalHitbox.height() * factor);
+
+        // Calcular las nuevas coordenadas para mantener el centro
+        int left = centerX - newWidth / 2;
+        int top = centerY - newHeight / 2;
+        int right = centerX + newWidth / 2;
+        int bottom = centerY + newHeight / 2;
+
+        // Devolver el nuevo rectángulo
+        return new Rect(left, top, right, bottom);
+    }
+
+    @Override
+    public void run() {
+        chronometer = 0;
+        while (!gameOver) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return;
+            }
+            chronometer++;
+
+            int finalChronometer = chronometer;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    TextView chronoText = findViewById(R.id.chronoText);
+                    chronoText.setText(String.format(Locale.getDefault(), "%02d:%02d", finalChronometer / 60, finalChronometer % 60));
+                }
+            });
+        }
+    }
+
+    private void saveScore() {
+        ScoreManager scoreManager = new ScoreManager(this);
+        scoreManager.addScore(new ScoreDTO(getGameDTO(), userPlaying, score, chronometer));
+        scoreManager.close();
+    }
+    private GameDTO getGameDTO(){
+        return new GameDTO(GameName.FLAPPYBIRDS.toString(), "Juego de Flappy Bird");
     }
 }

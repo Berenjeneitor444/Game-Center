@@ -14,32 +14,40 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Registro"
+            android:text="@string/register"
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_gravity="center_horizontal"/>
 
         <EditText
-            android:id="@+id/et_name"
+            android:id="@+id/user_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autofillHints="true"
-            android:hint="Nombre"
+            android:hint="@string/user_name"
             android:inputType="textPersonName"/>
 
         <EditText
             android:id="@+id/et_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Contraseña"
+            android:hint="@string/passwd"
             android:inputType="textPassword"/>
 
         <Button
             android:id="@+id/btn_register"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Registrarse"
+            android:text="@string/register"
             android:layout_marginTop="16dp"/>
 
+        <TextView
+            android:id="@+id/tv_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tv_login"
+            android:textColor="@android:color/holo_blue_dark"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop="10dp"/>
     </LinearLayout>
 </ScrollView>

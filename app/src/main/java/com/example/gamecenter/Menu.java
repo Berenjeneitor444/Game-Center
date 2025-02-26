@@ -14,6 +14,7 @@ import com.example.gamecenter._2048.controller.DosMilCuarentaYOcho;
 import com.example.gamecenter.flappy_birds.FlappyBirds;
 
 public class Menu extends AppCompatActivity {
+    private UserDTO currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +26,7 @@ public class Menu extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
+        currentUser = (UserDTO) getIntent().getSerializableExtra("current_user");
     }
 
     public void changeActivity(View view) {
@@ -35,7 +36,9 @@ public class Menu extends AppCompatActivity {
         } else if (view.getId() == R.id.button_flappy) {
             intent = new Intent(this, FlappyBirds.class);
         }
+        else if (view.getId() == R.id.button_scores) intent = new Intent(this, ScoreDisplayer.class);
         else return;
+        intent.putExtra("current_user", currentUser);
         startActivity(intent);
     }
 }

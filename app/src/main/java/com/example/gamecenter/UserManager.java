@@ -3,6 +3,8 @@ package com.example.gamecenter;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 
 public class UserManager {
@@ -14,15 +16,18 @@ public class UserManager {
         db = helper.getWritableDatabase();
 
     }
-    public boolean addUser(String username, String password) {
+    public boolean addUser(UserDTO userDTO) {
         try {
             ContentValues values = new ContentValues();
-            values.put("username", username);
-            values.put("password", password);
-            db.insert("users", null, values);
+            values.put("username", userDTO.getUserName());
+            values.put("password", userDTO.getPasswd());
+            long a = db.insert("users", null, values);
+            if (a == -1) {
+                return false;
+            }
             return true;
         }
-        catch (Exception e){
+        catch (SQLiteConstraintException e){
             // si es invalido
             return false;
         }
@@ -30,9 +35,9 @@ public class UserManager {
     public void deleteUser(String username) {
         db.execSQL("DELETE FROM users WHERE username = ?", new Object[]{username});
     }
-    public boolean checkUser(String username, String password) {
+    public boolean checkUser(UserDTO userDTO) {
         String query = "SELECT * FROM users WHERE username = ? AND password = ?";
-        Cursor cursor = db.rawQuery(query, new String[]{username, password});
+        Cursor cursor = db.rawQuery(query, new String[]{userDTO.getUserName(), userDTO.getPasswd()});
 
         boolean exists = cursor.getCount() > 0;
 

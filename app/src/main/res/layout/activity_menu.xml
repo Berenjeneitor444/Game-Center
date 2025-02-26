@@ -7,27 +7,95 @@
     android:layout_height="match_parent"
     tools:context=".Menu">
 
-    <Button
-        android:id="@+id/button_2048"
+    <TextView
+        android:id="@+id/title_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="changeActivity"
-        android:text="@string/_2048"
-        app:layout_constraintBottom_toTopOf="@+id/button_flappy"
+        android:text="@string/app_title"
+        android:textAppearance="?attr/textAppearanceHeadline1"
+        android:textColor="@color/primary"
+        android:layout_marginTop="48dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/button_flappy"
+    <TextView
+        android:id="@+id/subtitle_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="changeActivity"
-        android:text="@string/flappy_birds"
+        android:text="@string/app_subtitle"
+        android:textAppearance="?attr/textAppearanceBody1"
+        android:textColor="@color/text_secondary"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title_text" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/game_card"
+        style="@style/Widget.App.Card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/subtitle_text">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/games_title"
+                android:textAppearance="?attr/textAppearanceHeadline2"
+                android:layout_marginBottom="16dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_2048"
+                style="@style/Widget.App.Button.Game"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="@color/game_2048"
+                android:onClick="changeActivity"
+                android:text="@string/_2048" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_flappy"
+                style="@style/Widget.App.Button.Game"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="@color/game_flappy"
+                android:onClick="changeActivity"
+                android:text="@string/flappy_birds" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_scores"
+                style="@style/Widget.App.Button.Game"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/game_scores"
+                android:onClick="changeActivity"
+                android:text="@string/game_scores" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/version_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/version_info"
+        android:textColor="@color/text_secondary"
+        android:textSize="12sp"
+        android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_2048" />
+        app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

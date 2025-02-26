@@ -16,6 +16,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 public class LoginFragment extends Fragment {
+    private UserManager userManager;
 
     public LoginFragment() {
         // Constructor vacío requerido
@@ -29,6 +30,7 @@ public class LoginFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        userManager = new UserManager(getContext());
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
         // Referencias a los elementos de UI
@@ -45,8 +47,14 @@ public class LoginFragment extends Fragment {
             if (username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(getActivity(), "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show();
             } else {
-                // Aquí iría la lógica de autenticación
-                Toast.makeText(getActivity(), "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
+                if(userManager.checkUser(new UserDTO(username, password))){
+                    UserDTO userDTO = new UserDTO(username, password);
+                    Toast.makeText(getActivity(), "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
+                    ((UserActivity) requireActivity()).toMenu(userDTO);
+                }
+                else{
+                    Toast.makeText(getActivity(), "Credenciales incorrectas", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

@@ -43,14 +43,21 @@ public class MyOpenHelper extends SQLiteOpenHelper {
         // Harcodear datos de los juegos:
 
         String insertGames = "INSERT INTO games (name, description) VALUES " +
-                "('2048', 'Juego de 2048'), " +
-                "('Flappy Bird', 'Juego de Flappy Bird')";
+                "('GAME_2048', 'Juego de 2048'), " +
+                "('FLAPPYBIRDS', 'Juego de Flappy Bird')";
 
         db.execSQL(insertGames);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
+        db.execSQL("DROP TABLE IF EXISTS users");
+        db.execSQL("DROP TABLE IF EXISTS games");
+        db.execSQL("DROP TABLE IF EXISTS scores");
+        onCreate(db);
+    }
+    public void reset(){
+        SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS users");
         db.execSQL("DROP TABLE IF EXISTS games");
         db.execSQL("DROP TABLE IF EXISTS scores");

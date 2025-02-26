@@ -24,7 +24,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.gamecenter.GameDTO;
+import com.example.gamecenter.GameName;
 import com.example.gamecenter.R;
+import com.example.gamecenter.ScoreDTO;
+import com.example.gamecenter.ScoreManager;
+import com.example.gamecenter.UserDTO;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -42,7 +47,31 @@ public class DosMilCuarentaYOcho extends AppCompatActivity implements Runnable {
     private GestureDetector gestureDetector;
     private int score = 0;
     private Boolean juegoEnCurso = null;
+    private UserDTO userPlaying;
+    private int chronometer;
 
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.dosmilcuarentayocho);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+        userPlaying = (UserDTO) getIntent().getSerializableExtra("current_user");
+        // inicializo el grid
+        inicializarGrid();
+        // genero el primer bloque
+        Point coordenadas = generarCoordenadasAleatorias();
+        generarBloque(coordenadas, radint.nextBoolean() ? 2 : 4);
+        // inicializo el detector de gestos
+        gestureDetector = new GestureDetector(this, new GameGestureDetector());
+        findViewById(R.id.grid).setOnTouchListener(new GameGestureDetector());
+    }
     private void inicializarGrid(){
         grid = findViewById(R.id.grid_sobrepuesto);
         DisplayMetrics metrics = getResources().getDisplayMetrics();
@@ -244,6 +273,9 @@ public class DosMilCuarentaYOcho extends AppCompatActivity implements Runnable {
         if (esGameOver()){
             juegoEnCurso = false;
             // animo la aparicion del mensaje de gameOver
+            // guardo el score
+            saveScore();
+            // coloco el cartel de game over
             ObjectAnimator fadeIn = ObjectAnimator.ofFloat(findViewById(R.id.game_over), "alpha", 0f, 1f);
             fadeIn.setDuration(1000);
             fadeIn.start();
@@ -309,7 +341,7 @@ public class DosMilCuarentaYOcho extends AppCompatActivity implements Runnable {
         grid.requestLayout();
 
     }
-// SEGUIR MAÑANA EN ESTE METODO
+    // SEGUIR MAÑANA EN ESTE METODO
     public void generarBloque(Point coordenadas, int numero) {
         // crear bloque
         TextView bloque = new TextView(this);
@@ -421,70 +453,10 @@ public class DosMilCuarentaYOcho extends AppCompatActivity implements Runnable {
         }
         return true;
     }
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.dosmilcuarentayocho);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-        // inicializo el grid
-        inicializarGrid();
-        // genero el primer bloque
-        Point coordenadas = generarCoordenadasAleatorias();
-        generarBloque(coordenadas, radint.nextBoolean() ? 2 : 4);
-        // inicializo el detector de gestos
-        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener(){
-            @Override
-            public boolean onDown(@NonNull MotionEvent e) {
-                return true;
-            }
-
-            @Override
-            public boolean onFling(@NonNull MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
-                float diffX = e2.getX() - e1.getX();
-                float diffY = e2.getY() - e1.getY();
-
-                // si ha sido un deslizamiento horizontal
-                if (Math.abs(diffX) > Math.abs(diffY)) {
-                    // si ha sido hacia la derecha
-                    if (diffX > 0) {
-                        jugada(new int[]{0,1});
-                    }
-                    // si ha sido hacia la izquierda
-                    else {
-                        jugada(new int[]{0,-1});
-                    }
-                }
-                // si ha sido un deslizamiento vertical
-                else {
-                    // si ha sido hacia arriba
-                    if (diffY > 0) {
-                        jugada(new int[]{1,0});
-                    }
-                    // si ha sido hacia abajo
-                    else {
-                        jugada(new int[]{-1,0});
-                    }
-                }
-                return true;
-            }
-        });
-        findViewById(R.id.grid).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-               return gestureDetector.onTouchEvent(motionEvent);
-            }
-        });
-
-    }
 
     @Override
     public void run() {
-        int chronometer = 0;
+        chronometer = 0;
         while (juegoEnCurso) {
             try {
                 Thread.sleep(1000);
@@ -503,6 +475,56 @@ public class DosMilCuarentaYOcho extends AppCompatActivity implements Runnable {
                 }
             });
         }
+    }
+    private void saveScore(){
+        ScoreManager scoreManager = new ScoreManager(this);
+        scoreManager.addScore(new ScoreDTO(getGameDTO(), userPlaying, score, chronometer));
+        scoreManager.close();
+    }
+    class GameGestureDetector extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
+        @Override
+        public boolean onDown(@NonNull MotionEvent e) {
+            return true;
+        }
+
+        @Override
+        public boolean onFling(@NonNull MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
+            float diffX = e2.getX() - e1.getX();
+            float diffY = e2.getY() - e1.getY();
+
+            // si ha sido un deslizamiento horizontal
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                // si ha sido hacia la derecha
+                if (diffX > 0) {
+                    jugada(new int[]{0,1});
+                }
+                // si ha sido hacia la izquierda
+                else {
+                    jugada(new int[]{0,-1});
+                }
+            }
+            // si ha sido un deslizamiento vertical
+            else {
+                // si ha sido hacia arriba
+                if (diffY > 0) {
+                    jugada(new int[]{1,0});
+                }
+                // si ha sido hacia abajo
+                else {
+                    jugada(new int[]{-1,0});
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            view.performClick();
+            return gestureDetector.onTouchEvent(motionEvent);
+        }
+    }
+    private GameDTO getGameDTO(){
+        return new GameDTO(GameName.GAME_2048.toString(), "Dos mil cuatro y ocho");
     }
 
 }

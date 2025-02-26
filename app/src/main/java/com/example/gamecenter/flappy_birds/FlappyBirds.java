@@ -10,9 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -25,12 +23,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.gamecenter.GameDTO;
-import com.example.gamecenter.GameName;
+import com.example.gamecenter.DTO.GameDTO;
+import com.example.gamecenter.dbmanagement.GameName;
 import com.example.gamecenter.R;
-import com.example.gamecenter.ScoreDTO;
-import com.example.gamecenter.ScoreManager;
-import com.example.gamecenter.UserDTO;
+import com.example.gamecenter.DTO.ScoreDTO;
+import com.example.gamecenter.dbmanagement.ScoreManager;
+import com.example.gamecenter.DTO.UserDTO;
 
 import java.util.Locale;
 import java.util.Random;

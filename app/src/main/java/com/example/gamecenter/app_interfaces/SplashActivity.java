@@ -1,4 +1,4 @@
-package com.example.gamecenter;
+package com.example.gamecenter.app_interfaces;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -15,11 +14,11 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.gamecenter.UserActivity;
+import com.example.gamecenter.R;
 
 public class SplashActivity extends AppCompatActivity {
 
-    private static final long SPLASH_DELAY = 2000; // 2 segundos
+    private static final long SPLASH_DELAY = 2000;
     private ImageView ivLogo;
     private TextView tvAppName;
     private ProgressBar progressBar;
@@ -57,20 +56,20 @@ public class SplashActivity extends AppCompatActivity {
         // Combinar animaciones del logo
         AnimatorSet logoAnimatorSet = new AnimatorSet();
         logoAnimatorSet.playTogether(scaleXAnimator, scaleYAnimator, rotateAnimator);
-        logoAnimatorSet.setDuration(800);
+        logoAnimatorSet.setDuration(2000);
         logoAnimatorSet.setInterpolator(new AnticipateOvershootInterpolator());
 
         // Animación para el texto
         ObjectAnimator textAlphaAnimator = ObjectAnimator.ofFloat(tvAppName, View.ALPHA, 0f, 1f);
-        textAlphaAnimator.setDuration(500);
+        textAlphaAnimator.setDuration(1500);
         textAlphaAnimator.setStartDelay(600);
 
         // Animación para la barra de progreso
         ObjectAnimator progressBarAlphaAnimator = ObjectAnimator.ofFloat(progressBar, View.ALPHA, 0f, 1f);
-        progressBarAlphaAnimator.setDuration(400);
+        progressBarAlphaAnimator.setDuration(1400);
         progressBarAlphaAnimator.setStartDelay(900);
 
-        // Ejecutar todas las animaciones
+        // ejecutar animaciones
         AnimatorSet finalAnimatorSet = new AnimatorSet();
         finalAnimatorSet.playTogether(logoAnimatorSet, textAlphaAnimator, progressBarAlphaAnimator);
         finalAnimatorSet.start();
@@ -80,10 +79,9 @@ public class SplashActivity extends AppCompatActivity {
         Intent intent = new Intent(SplashActivity.this, UserActivity.class);
         startActivity(intent);
 
-        // Agregar una transición suave
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 
-        // Cerrar esta actividad
+        // cerrar la activity
         finish();
     }
 }

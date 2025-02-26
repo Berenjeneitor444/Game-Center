@@ -1,4 +1,4 @@
-package com.example.gamecenter;
+package com.example.gamecenter.app_interfaces;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +8,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
+import com.example.gamecenter.DTO.UserDTO;
+import com.example.gamecenter.R;
 
 public class UserActivity extends AppCompatActivity {
     private final RegisterFragment registerFragment = new RegisterFragment();
@@ -22,7 +25,7 @@ public class UserActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_user);
 
-        // Cargar el fragmento de registro
+        // cargar el fragmento de login al principio
         if (savedInstanceState == null) {
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -30,6 +33,7 @@ public class UserActivity extends AppCompatActivity {
             transaction.commit();
         }
     }
+    // cambiar de login a register
     public void changeFragment() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -39,6 +43,7 @@ public class UserActivity extends AppCompatActivity {
         transaction.commit();
         currentFragment = currentFragment == FragmentType.LOGIN ? FragmentType.REGISTER : FragmentType.LOGIN;
     }
+    // ir al menu una vez iniciada la sesion
     public void toMenu(UserDTO userDTO){
         Intent intent = new Intent(getApplicationContext(), Menu.class);
         intent.putExtra("current_user", userDTO);

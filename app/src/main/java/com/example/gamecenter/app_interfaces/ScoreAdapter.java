@@ -1,4 +1,4 @@
-package com.example.gamecenter;
+package com.example.gamecenter.app_interfaces;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -6,6 +6,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.gamecenter.DTO.ScoreDTO;
+import com.example.gamecenter.R;
+
 import java.util.List;
 
 public class ScoreAdapter extends RecyclerView.Adapter<ScoreAdapter.ScoreViewHolder> {

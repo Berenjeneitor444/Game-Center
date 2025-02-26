@@ -1,4 +1,4 @@
-package com.example.gamecenter;
+package com.example.gamecenter.app_interfaces;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,7 +10,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.gamecenter._2048.controller.DosMilCuarentaYOcho;
+import com.example.gamecenter.DTO.UserDTO;
+import com.example.gamecenter.R;
+import com.example.gamecenter._2048.DosMilCuarentaYOcho;
 import com.example.gamecenter.flappy_birds.FlappyBirds;
 
 public class Menu extends AppCompatActivity {

@@ -1,10 +1,8 @@
-package com.example.gamecenter;
+package com.example.gamecenter.dbmanagement;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
-import androidx.annotation.Nullable;
 
 public class MyOpenHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "game_center.db";

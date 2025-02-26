@@ -1,4 +1,4 @@
-package com.example.gamecenter;
+package com.example.gamecenter.app_interfaces;
 
 import android.database.Cursor;
 import android.os.Bundle;
@@ -11,6 +11,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.gamecenter.DTO.GameDTO;
+import com.example.gamecenter.DTO.ScoreDTO;
+import com.example.gamecenter.DTO.UserDTO;
+import com.example.gamecenter.R;
+import com.example.gamecenter.dbmanagement.GameName;
+import com.example.gamecenter.dbmanagement.ScoreManager;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,8 +106,9 @@ public class ScoreDisplayer extends AppCompatActivity {
             String gameName = cursor.getString(0);
             int points = cursor.getInt(1);
             int date = cursor.getInt(2);
+            String player = cursor.getString(3);
             filteredScores.add(new ScoreDTO(new GameDTO(selectedGame,
-                    GameName.valueOf(gameName).getDescription()), currentUser, points, date));
+                    GameName.valueOf(gameName).getDescription()), new UserDTO(player) , points, date));
         }
         cursor.close();
 

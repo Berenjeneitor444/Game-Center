@@ -1,9 +1,13 @@
-package com.example.gamecenter;
+package com.example.gamecenter.dbmanagement;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
+import com.example.gamecenter.DTO.GameDTO;
+import com.example.gamecenter.DTO.ScoreDTO;
+import com.example.gamecenter.DTO.UserDTO;
 
 public class ScoreManager {
     private final SQLiteDatabase writableDB;
@@ -13,7 +17,7 @@ public class ScoreManager {
         helper = new MyOpenHelper(context);
         writableDB = helper.getWritableDatabase();
     }
-
+    // devuelve un cursor con los scores con su usuario y juego
     public void addScore(ScoreDTO scoreDTO) {
         String queryUserId = "SELECT id FROM users WHERE username = ?";
         Cursor cursorUserId = writableDB.rawQuery(queryUserId, new String[]{scoreDTO.getPlayer().getUserName()});
@@ -35,9 +39,9 @@ public class ScoreManager {
         values.put("date", String.valueOf(System.currentTimeMillis()));
         writableDB.insert("scores", null, values);
     }
-
+    // polimorfismo para obtener los scores filtrando o sin filtrar
     public Cursor getScores() {
-        String query = "SELECT games.name, scores.score, scores.date " +
+        String query = "SELECT games.name, scores.score, scores.date, users.username " +
                 "FROM scores " +
                 "JOIN users ON scores.user_id = users.id " +
                 "JOIN games ON scores.game_id = games.id " +
@@ -50,7 +54,7 @@ public class ScoreManager {
         String gameName = game.getName();
         String userName = user.getUserName();
 
-        String query = "SELECT games.name, scores.score, scores.date " +
+        String query = "SELECT games.name, scores.score, scores.date, users.username " +
                 "FROM scores " +
                 "JOIN users ON scores.user_id = users.id " +
                 "JOIN games ON scores.game_id = games.id " +
@@ -62,7 +66,7 @@ public class ScoreManager {
     public Cursor getScores(GameDTO game) {
         String gameName = game.getName();
 
-        String query = "SELECT games.name, scores.score, scores.date " +
+        String query = "SELECT games.name, scores.score, scores.date, users.username " +
                 "FROM scores " +
                 "JOIN users ON scores.user_id = users.id " +
                 "JOIN games ON scores.game_id = games.id " +
@@ -74,7 +78,7 @@ public class ScoreManager {
     public Cursor getScores(UserDTO user) {
         String userName = user.getUserName();
 
-        String query = "SELECT games.name, scores.score, scores.date " +
+        String query = "SELECT games.name, scores.score, scores.date, users.username " +
                 "FROM scores " +
                 "JOIN users ON scores.user_id = users.id " +
                 "JOIN games ON scores.game_id = games.id " +

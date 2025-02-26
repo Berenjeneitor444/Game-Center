@@ -1,6 +1,5 @@
-package com.example.gamecenter;
+package com.example.gamecenter.app_interfaces;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,31 +11,29 @@ import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
+import com.example.gamecenter.DTO.UserDTO;
+import com.example.gamecenter.R;
+import com.example.gamecenter.dbmanagement.UserManager;
+
 public class RegisterFragment extends Fragment {
     private UserManager userManager;
 
-    public RegisterFragment() {
-        // Required empty public constructor
-    }
-
-    public static RegisterFragment newInstance() {
-        return new RegisterFragment();
-    }
+    public RegisterFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         userManager = new UserManager(getContext());
-        // Inflar el diseño del fragmento
+        // inflar la vista
         View view = inflater.inflate(R.layout.fragment_register, container, false);
 
-        // Obtener referencias a los elementos de la UI
+        // views
         EditText etName = view.findViewById(R.id.user_name);
         EditText etPassword = view.findViewById(R.id.et_password);
         Button btnRegister = view.findViewById(R.id.btn_register);
         TextView tvLogin = view.findViewById(R.id.tv_login);
 
-        // Configurar el evento de clic del botón
+        // listener para registrar un usuario
         btnRegister.setOnClickListener(v -> {
             String name = etName.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
@@ -56,6 +53,7 @@ public class RegisterFragment extends Fragment {
         });
         // cambiar a la pantalla de login
         tvLogin.setOnClickListener(v -> {
+            userManager.close();
             ((UserActivity) requireActivity()).changeFragment();
         });
 

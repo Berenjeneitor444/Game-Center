@@ -1,11 +1,12 @@
-package com.example.gamecenter;
+package com.example.gamecenter.dbmanagement;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
+
+import com.example.gamecenter.DTO.UserDTO;
 
 public class UserManager {
     private final SQLiteDatabase db;
@@ -17,23 +18,15 @@ public class UserManager {
 
     }
     public boolean addUser(UserDTO userDTO) {
-        try {
-            ContentValues values = new ContentValues();
-            values.put("username", userDTO.getUserName());
-            values.put("password", userDTO.getPasswd());
-            long a = db.insert("users", null, values);
-            if (a == -1) {
-                return false;
-            }
-            return true;
-        }
-        catch (SQLiteConstraintException e){
-            // si es invalido
+        ContentValues values = new ContentValues();
+        values.put("username", userDTO.getUserName());
+        values.put("password", userDTO.getPasswd());
+        long a = db.insert("users", null, values);
+        if (a == -1) {
             return false;
         }
-    }
-    public void deleteUser(String username) {
-        db.execSQL("DELETE FROM users WHERE username = ?", new Object[]{username});
+        return true;
+
     }
     public boolean checkUser(UserDTO userDTO) {
         String query = "SELECT * FROM users WHERE username = ? AND password = ?";

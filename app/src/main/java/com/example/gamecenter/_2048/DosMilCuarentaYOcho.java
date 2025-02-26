@@ -1,4 +1,4 @@
-package com.example.gamecenter._2048.controller;
+package com.example.gamecenter._2048;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -24,12 +24,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.gamecenter.GameDTO;
-import com.example.gamecenter.GameName;
+import com.example.gamecenter.DTO.GameDTO;
+import com.example.gamecenter.dbmanagement.GameName;
 import com.example.gamecenter.R;
-import com.example.gamecenter.ScoreDTO;
-import com.example.gamecenter.ScoreManager;
-import com.example.gamecenter.UserDTO;
+import com.example.gamecenter.DTO.ScoreDTO;
+import com.example.gamecenter.dbmanagement.ScoreManager;
+import com.example.gamecenter.DTO.UserDTO;
 
 import java.util.HashMap;
 import java.util.Locale;

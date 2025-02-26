@@ -5,10 +5,10 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="._2048.controller.DosMilCuarentaYOcho">
+    tools:context="._2048.DosMilCuarentaYOcho">
 
 
-    <!-- Puntuación -->
+    <!-- score -->
     <TextView
         android:id="@+id/scoreText"
         android:layout_width="wrap_content"
@@ -25,7 +25,7 @@
         android:layout_marginTop="40dp"
         />
 
-    <!-- Cronómetro -->
+    <!-- timer -->
     <TextView
         android:id="@+id/chronoText"
         android:layout_width="wrap_content"

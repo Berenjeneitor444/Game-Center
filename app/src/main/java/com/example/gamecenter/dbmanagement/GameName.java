@@ -1,4 +1,4 @@
-package com.example.gamecenter;
+package com.example.gamecenter.dbmanagement;
 
 public enum GameName {
     FLAPPYBIRDS("Juego de Flappy Bird"), GAME_2048("Juego de 2048");
